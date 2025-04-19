@@ -1,21 +1,27 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { ITodo } from "../types";
 
-const todoSchema = new mongoose.Schema(
+const todoSchema = new Schema<ITodo>(
     {
         title: {
             type: String,
             required: true
         },
         description: {
-            type: String,
-            require: true
+            type: String
         },
-        author: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
+        completed: {
+            type: Boolean,
+            default: false
+        },
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true
         }
     },
     { timestamps: true }
 );
 
-export const Todo = mongoose.model("Todo", todoSchema);
+const Todo = mongoose.model<ITodo>("Todo", todoSchema);
+export default Todo;

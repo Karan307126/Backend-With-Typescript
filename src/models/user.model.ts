@@ -1,40 +1,42 @@
-import mongoose from "mongoose";
-import bcrypt from "bcrypt";
+import mongoose, { Schema } from "mongoose";
+import bcrypt from "bcryptjs";
+import { IUser } from "../types";
 
-const userSchema = new mongoose.Schema(
+const userSchema = new Schema<IUser>(
     {
-        userName: {
+        name: {
             type: String,
-            require: true,
-            unique: true,
-            trim: true
+            required: true
         },
         email: {
             type: String,
-            require: [true, "Email is required!"],
-            trim: true,
+            required: true,
             unique: true
         },
         password: {
             type: String,
-            required: [true, "Password is required!"]
-        },
-        refreshToken: {
-            type: String
+            required: true,
+            select: false
         }
     },
     { timestamps: true }
 );
 
+// Hash password before saving
 userSchema.pre("save", async function (next) {
-    if (this.isModified("password")) {
-        this.password = await bcrypt.hash(this.password, 16);
-    }
+    if (!this.isModified("password")) return next();
+
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
     next();
 });
 
-userSchema.methods.comparePassword = async function (password: string) {
-    return await bcrypt.compare(this.password, password);
+// Method to compare passwords
+userSchema.methods.comparePassword = async function (
+    candidatePassword: string
+): Promise<boolean> {
+    return await bcrypt.compare(candidatePassword, this.password);
 };
 
-export const User = mongoose.model("User", userSchema);
+const User = mongoose.model<IUser>("User", userSchema);
+export default User;
