@@ -9,6 +9,22 @@ export interface AuthenticatedRequest extends Request {
     user?: any;
 }
 
+/**
+ * Middleware to protect routes from unauthorized access.
+ *
+ * This middleware verifies the access token in the authorization header and
+ * checks if it is valid. If the token is valid, it populates the req.user property
+ * with the user object from the database. If the token is invalid, it throws an
+ * ApiError with a status of 401 (Unauthorized) and a message of "Not authorized to
+ * access this route".
+ *
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ * @param {NextFunction} next - The Express next middleware function.
+ *
+ * @returns {Promise<void>} A promise that resolves when the middleware has finished
+ * executing.
+ */
 export const protect = async (
     req: AuthenticatedRequest,
     res: Response,

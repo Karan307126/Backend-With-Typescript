@@ -9,6 +9,17 @@ import {
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 import { HTTP_STATUS } from "../constants";
 
+/**
+ * Handles a POST request to /todos.
+ *
+ * The request body should contain a valid `title` and `description`.
+ *
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ * @param {NextFunction} next - The Express next middleware function.
+ *
+ * @returns {Promise<void>} A promise that resolves when the request has been handled.
+ */
 export const createTodoHandler = async (
     req: AuthenticatedRequest,
     res: Response,
@@ -27,6 +38,17 @@ export const createTodoHandler = async (
     }
 };
 
+/**
+ * Handles a GET request to /todos.
+ *
+ * The request should be authenticated using Bearer authorization.
+ *
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ * @param {NextFunction} next - The Express next middleware function.
+ *
+ * @returns {Promise<void>} A promise that resolves when the request has been handled.
+ */
 export const getTodosHandler = async (
     req: AuthenticatedRequest,
     res: Response,
@@ -42,6 +64,18 @@ export const getTodosHandler = async (
         next(error);
     }
 };
+
+/**
+ * Handles a GET request to /todos/:id.
+ *
+ * The request should be authenticated using Bearer authorization.
+ *
+ * @param {AuthenticatedRequest} req - The Express request object containing the authenticated user and the todo ID in the URL parameters.
+ * @param {Response} res - The Express response object used to send the JSON response.
+ * @param {NextFunction} next - The Express next middleware function for error handling.
+ *
+ * @returns {Promise<void>} A promise that resolves when the request has been handled.
+ */
 
 export const getTodoHandler = async (
     req: AuthenticatedRequest,
@@ -59,6 +93,17 @@ export const getTodoHandler = async (
     }
 };
 
+/**
+ * Handles a PUT request to /todos/:id.
+ *
+ * The request should be authenticated using Bearer authorization.
+ *
+ * @param {AuthenticatedRequest} req - The Express request object containing the authenticated user and the todo ID in the URL parameters.
+ * @param {Response} res - The Express response object used to send the JSON response.
+ * @param {NextFunction} next - The Express next middleware function for error handling.
+ *
+ * @returns {Promise<void>} A promise that resolves when the request has been handled.
+ */
 export const updateTodoHandler = async (
     req: AuthenticatedRequest,
     res: Response,
@@ -83,6 +128,17 @@ export const updateTodoHandler = async (
     }
 };
 
+/**
+ * Handles a DELETE request to /todos/:id.
+ *
+ * The request should be authenticated using Bearer authorization.
+ *
+ * @param {AuthenticatedRequest} req - The Express request object containing the authenticated user and the todo ID in the URL parameters.
+ * @param {Response} res - The Express response object used to send the JSON response.
+ * @param {NextFunction} next - The Express next middleware function for error handling.
+ *
+ * @returns {Promise<void>} A promise that resolves when the request has been handled.
+ */
 export const deleteTodoHandler = async (
     req: AuthenticatedRequest,
     res: Response,
