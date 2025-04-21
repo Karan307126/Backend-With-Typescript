@@ -8,6 +8,7 @@ import {
 } from "../services/todo.service";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 import { HTTP_STATUS } from "../constants";
+import { createTodoSchema } from "../validations/todo.validators";
 
 /**
  * Handles a POST request to /todos.
@@ -26,8 +27,12 @@ export const createTodoHandler = async (
     next: NextFunction
 ): Promise<void> => {
     try {
-        const { title, description } = req.body;
-        const todo = await createTodo(title, description, req.user.id);
+        const parsed = createTodoSchema.safeParse(req.body);
+        const todo = await createTodo(
+            parsed?.data?.title ?? "",
+            parsed?.data?.description ?? "",
+            req.user.id
+        );
 
         res.status(HTTP_STATUS.CREATED).json({
             success: true,

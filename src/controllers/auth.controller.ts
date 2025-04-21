@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { registerUser, loginUser } from "../services/auth.service";
 import { HTTP_STATUS } from "../constants";
+import {
+    loginUserSchema,
+    registerUserSchema
+} from "../validations/auth.validators";
 
 /**
  * Handles a POST request to /register.
@@ -19,8 +23,13 @@ export const register = async (
     next: NextFunction
 ): Promise<void> => {
     try {
-        const { name, email, password } = req.body;
-        const user = await registerUser(name, email, password);
+        // Validate the request body
+        const parsed = registerUserSchema.safeParse(req.body);
+        const user = await registerUser(
+            parsed?.data?.name ?? "",
+            parsed?.data?.email ?? "",
+            parsed?.data?.password ?? ""
+        );
 
         res.status(HTTP_STATUS.CREATED).json({
             success: true,
@@ -48,8 +57,11 @@ export const login = async (
     next: NextFunction
 ): Promise<void> => {
     try {
-        const { email, password } = req.body;
-        const { user, token } = await loginUser(email, password);
+        const parsed = loginUserSchema.safeParse(req.body);
+        const { user, token } = await loginUser(
+            parsed?.data?.email ?? "",
+            parsed?.data?.password ?? ""
+        );
 
         res.status(HTTP_STATUS.OK).json({
             success: true,
