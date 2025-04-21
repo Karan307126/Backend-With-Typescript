@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model";
-import ApiError from "../utils/apiError";
 import { ENV } from "../config/env";
-import { HTTP_STATUS } from "../constants";
+import { UnauthorizedError } from "../utils";
 
 export interface AuthenticatedRequest extends Request {
     user?: any;
@@ -41,10 +40,7 @@ export const protect = async (
 
     if (!token) {
         return next(
-            new ApiError(
-                "Not authorized to access this route",
-                HTTP_STATUS.UNAUTHORIZED
-            )
+            new UnauthorizedError("Not authorized to access this route")
         );
     }
 
@@ -59,10 +55,7 @@ export const protect = async (
         next();
     } catch (error) {
         return next(
-            new ApiError(
-                "Not authorized to access this route",
-                HTTP_STATUS.UNAUTHORIZED
-            )
+            new UnauthorizedError("Not authorized to access this route")
         );
     }
 };

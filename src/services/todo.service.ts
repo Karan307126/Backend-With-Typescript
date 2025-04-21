@@ -1,7 +1,7 @@
 import { HTTP_STATUS } from "../constants";
 import Todo from "../models/todo.model";
 import { ITodo } from "../types";
-import ApiError from "../utils/apiError";
+import { NotFoundError } from "../utils";
 
 /**
  * Creates a new Todo item.
@@ -32,6 +32,7 @@ export const createTodo = async (
  */
 export const getTodos = async (userId: string): Promise<ITodo[]> => {
     const todos = await Todo.find({ user: userId });
+    if (todos.length === 0) throw new NotFoundError("No todos found");
     return todos;
 };
 
@@ -49,7 +50,7 @@ export const getTodoById = async (
 ): Promise<ITodo | null> => {
     const todo = await Todo.findOne({ _id: id, user: userId });
     if (!todo) {
-        throw new ApiError("Todo not found", HTTP_STATUS.NOT_FOUND);
+        throw new NotFoundError("Todo not found");
     }
     return todo;
 };
@@ -78,7 +79,7 @@ export const updateTodo = async (
         { new: true }
     );
     if (!todo) {
-        throw new ApiError("Todo not found", HTTP_STATUS.NOT_FOUND);
+        throw new NotFoundError("Todo not found");
     }
     return todo;
 };
@@ -94,6 +95,6 @@ export const updateTodo = async (
 export const deleteTodo = async (id: string, userId: string): Promise<void> => {
     const todo = await Todo.findOneAndDelete({ _id: id, user: userId });
     if (!todo) {
-        throw new ApiError("Todo not found", HTTP_STATUS.NOT_FOUND);
+        throw new NotFoundError("Todo not found");
     }
 };

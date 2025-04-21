@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import {
     createTodo,
     getTodos,
@@ -9,6 +9,7 @@ import {
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 import { HTTP_STATUS } from "../constants";
 import { createTodoSchema } from "../validations/todo.validators";
+import { ValidationError } from "../utils";
 
 /**
  * Handles a POST request to /todos.
@@ -28,14 +29,21 @@ export const createTodoHandler = async (
 ): Promise<void> => {
     try {
         const parsed = createTodoSchema.safeParse(req.body);
-        const todo = await createTodo(
-            parsed?.data?.title ?? "",
-            parsed?.data?.description ?? "",
-            req.user.id
-        );
+
+        if (parsed.success === false) {
+            const firstError = parsed.error.errors[0];
+            throw new ValidationError(firstError.message);
+        }
+        const { title, description } = parsed.data as {
+            title: string;
+            description: string;
+        };
+        const todo = await createTodo(title, description, req.user.id);
 
         res.status(HTTP_STATUS.CREATED).json({
+            statusCode: HTTP_STATUS.CREATED,
             success: true,
+            message: "Todo created successfully",
             data: todo
         });
     } catch (error) {
@@ -62,7 +70,9 @@ export const getTodosHandler = async (
     try {
         const todos = await getTodos(req.user.id);
         res.status(HTTP_STATUS.OK).json({
+            statusCode: HTTP_STATUS.OK,
             success: true,
+            message: "Todos fetched successfully",
             data: todos
         });
     } catch (error) {
@@ -90,7 +100,9 @@ export const getTodoHandler = async (
     try {
         const todo = await getTodoById(req.params.id, req.user.id);
         res.status(HTTP_STATUS.OK).json({
+            statusCode: HTTP_STATUS.OK,
             success: true,
+            message: "Todo fetched successfully",
             data: todo
         });
     } catch (error) {
@@ -125,7 +137,9 @@ export const updateTodoHandler = async (
         );
 
         res.status(HTTP_STATUS.OK).json({
+            statusCode: HTTP_STATUS.OK,
             success: true,
+            message: "Todo updated successfully",
             data: todo
         });
     } catch (error) {
@@ -152,7 +166,9 @@ export const deleteTodoHandler = async (
     try {
         await deleteTodo(req.params.id, req.user.id);
         res.status(HTTP_STATUS.NO_CONTENT).json({
+            statusCode: HTTP_STATUS.NO_CONTENT,
             success: true,
+            message: "Todo deleted successfully",
             data: null
         });
     } catch (error) {

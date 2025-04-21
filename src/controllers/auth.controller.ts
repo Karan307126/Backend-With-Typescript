@@ -5,6 +5,7 @@ import {
     loginUserSchema,
     registerUserSchema
 } from "../validations/auth.validators";
+import { ValidationError } from "../utils";
 
 /**
  * Handles a POST request to /register.
@@ -25,14 +26,17 @@ export const register = async (
     try {
         // Validate the request body
         const parsed = registerUserSchema.safeParse(req.body);
-        const user = await registerUser(
-            parsed?.data?.name ?? "",
-            parsed?.data?.email ?? "",
-            parsed?.data?.password ?? ""
-        );
+        const { name, email, password } = parsed.data as {
+            name: string;
+            email: string;
+            password: string;
+        };
+        const user = await registerUser(name, email, password);
 
         res.status(HTTP_STATUS.CREATED).json({
+            statusCode: HTTP_STATUS.CREATED,
             success: true,
+            message: "User created successfully",
             data: user
         });
     } catch (error) {
@@ -58,13 +62,21 @@ export const login = async (
 ): Promise<void> => {
     try {
         const parsed = loginUserSchema.safeParse(req.body);
-        const { user, token } = await loginUser(
-            parsed?.data?.email ?? "",
-            parsed?.data?.password ?? ""
-        );
+
+        if (parsed.success === false) {
+            const firstError = parsed.error.errors[0];
+            throw new ValidationError(firstError.message);
+        }
+        const { email, password } = parsed.data as {
+            email: string;
+            password: string;
+        };
+        const { user, token } = await loginUser(email, password);
 
         res.status(HTTP_STATUS.OK).json({
+            statusCode: HTTP_STATUS.OK,
             success: true,
+            message: "User logged in successfully",
             token,
             data: user
         });

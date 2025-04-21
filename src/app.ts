@@ -4,8 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import connectDB from "./config/database";
-import authRoutes from "./routes/auth.routes";
-import todoRoutes from "./routes/todo.routes";
+import { authRoutes, todoRoutes } from "./routes";
 import { errorHandler } from "./middlewares/error.middleware";
 
 dotenv.config();

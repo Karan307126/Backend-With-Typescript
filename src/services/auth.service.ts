@@ -1,10 +1,9 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model";
-import ApiError from "../utils/apiError";
 import { IUser } from "../types";
 import { ENV } from "../config/env";
-import { HTTP_STATUS } from "../constants";
 import { Types } from "mongoose";
+import { BadRequestError, UnauthorizedError } from "../utils";
 
 /**
  * Generates a JSON Web Token (JWT) for a given user ID.
@@ -38,7 +37,7 @@ export const registerUser = async (
 ): Promise<IUser> => {
     const userExists = await User.findOne({ email });
     if (userExists) {
-        throw new ApiError("User already exists", HTTP_STATUS.BAD_REQUEST);
+        throw new BadRequestError("User already exists");
     }
 
     const user = await User.create({ name, email, password });
@@ -61,12 +60,12 @@ export const loginUser = async (
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
-        throw new ApiError("Invalid credentials", HTTP_STATUS.UNAUTHORIZED);
+        throw new UnauthorizedError("Invalid email or password");
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-        throw new ApiError("Invalid credentials", HTTP_STATUS.UNAUTHORIZED);
+        throw new UnauthorizedError("Invalid email or password");
     }
 
     const token = generateToken(user._id as Types.ObjectId);

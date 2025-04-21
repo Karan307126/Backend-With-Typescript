@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import ApiError from "../utils/apiError";
 import { HTTP_STATUS } from "../constants";
+import { ApiError } from "../utils";
 
 /**
  * A middleware function that handles errors and sends a JSON response.
